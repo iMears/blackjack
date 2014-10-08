@@ -1,12 +1,11 @@
 class Card
-	# attr_reader :rank, :suit
 
 	SUITS = %w(♠ ♥ ♦ ♣)
 	RANKS = %w(2 3 4 5 6 7 8 9 10 J Q K A)
 
-	def initialize(rank, suit)
-		@rank = rank
-		@suit = suit
+	def initialize(rank_param, suit_param)
+		@rank = rank_param
+		@suit = suit_param
 	end
 
 	def is_ace?
@@ -33,7 +32,21 @@ class Card
 	end
 end #end Card
 
-class Play
+class Deck
+	def initialize
+		@deck = []
+		@discard = []
+
+		Card::SUITS.each do |x| 
+			Card::RANKS.each do |y|
+				@deck << Card.new(y,x)
+			end
+		end
+		@deck.shuffle!
+	end
+end
+
+class Hand
 	def deal(deck)
 		if deck.length < 2 
 			return true
@@ -43,11 +56,6 @@ class Play
 		@hand << deck.pop 
 		return false
 	end #deal
-
-	def isTheDealer(iAmTheDealer)
-		@amDealer = iAmTheDealer 
-	end #isTheDealer
-
 
 	def hit(deck)
 		if deck.length < 1 
@@ -91,7 +99,7 @@ class Play
 		end
 	end #isSplitable
 
-end #Play
+end #Hand
 
 
 def getYesNo(question)
@@ -108,16 +116,10 @@ end
 
 
 # initialze the dec.  52 cards
-deck = []
-Card::SUITS.each do |x| 
-	Card::RANKS.each do |y|
-		deck << Card.new(y,x)
-	end 
-end
 
 puts "\n" * 3
 play = getYesNo("Play blackjack? ")
-deck.shuffle!
+deck = Deck.new
 
 while play == "y"
 	# do I have enough cards to play one hand
@@ -133,10 +135,8 @@ while play == "y"
 	end
 
 	#deal to the player and the dealer
-	player = Play.new
-	player.isTheDealer(false)
-	dealer = Play.new
-	dealer.isTheDealer(true)
+	player = Hand.new
+	dealer = Hand.new
 
 	dealToPlayerFailed = player.deal(deck)
 	if dealToPlayerFailed
@@ -150,7 +150,7 @@ while play == "y"
 	handTotal = player.handValue
 	dealerTotal = dealer.handValue
 	canSplit = player.isSplittable
-	canSplit = true
+	\
 	if dealerTotal == 21
 		puts("DEALER HAS BLACKJACK.. YOU LOSE")
 	elsif handTotal == 21
@@ -158,8 +158,7 @@ while play == "y"
 	elsif canSplit == true
 		split = getYesNo("would you like to split?")
 		if split == "y"
-			player_hand2 = Play.new
-			player_hand2.isTheDealer(false)
+			player_hand2 = Hand.new
 			player_hand2.hand << player.hand.pop
 			player.hit(deck)
 			puts ("Hand 1: #{player.allCards}" + " =>    #{player.handValue}")
