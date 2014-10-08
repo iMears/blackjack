@@ -17,28 +17,16 @@ class Card
 		end
 	end
 
-
-
-
-
-#change to use case statement
-
-
 	def value
-		if @rank == "K" 
-			return 10
-		elsif @rank == "Q"
-			return 10
-		elsif @rank == "J"
-			return 10
-		elsif @rank == "A"
+		case @rank
+		when "A"
 			return 11
+		when "K", "Q", "J"
+			return 10
 		else 
 			return @rank.to_i
 		end
 	end
-
-	
 
 	def to_s
 		@rank + @suit
@@ -93,7 +81,18 @@ class Play
 		return @hand.first
 	end #firstCard
 
-end #Hand
+	def isSplittable
+		if @iAmTheDealer
+			return false
+		elsif @hand[0] == @hand[1]
+			return true
+		else
+			return false
+		end
+	end #isSplitable
+
+end #Play
+
 
 def getYesNo(question)
 	answer = 0
@@ -105,6 +104,7 @@ def getYesNo(question)
 end
 
 
+##########   end of definitions   beginning of execution
 
 
 # initialze the dec.  52 cards
@@ -121,7 +121,6 @@ deck.shuffle!
 
 while play == "y"
 	# do I have enough cards to play one hand
-
 	if deck.length < 10
 		puts ("shuffling...\n" * 25)
 		deck = []
@@ -150,15 +149,30 @@ while play == "y"
 	
 	handTotal = player.handValue
 	dealerTotal = dealer.handValue
+	canSplit = player.isSplittable
+	canSplit = true
 	if dealerTotal == 21
 		puts("DEALER HAS BLACKJACK.. YOU LOSE")
 	elsif handTotal == 21
 		puts("BLACKJACK YOU WIN")
+	elsif canSplit == true
+		split = getYesNo("would you like to split?")
+		if split == "y"
+			player_hand2 = Play.new
+			player_hand2.isTheDealer(false)
+			player_hand2.hand << player.hand.pop
+			player.hit(deck)
+			puts ("Hand 1: #{player.allCards}" + " =>    #{player.handValue}")
+			#split = getYesNo("would you like to hit again? y/n")
+			player_hand2.hit(deck)
+			puts ("Hand 2: #{player_hand2.allCards}" + " =>    #{player_hand2.handValue}")
+			#split = getYesNo("would you like to hit again? y/n")
+		end #split
 	else
-
 
 		3.times do puts " "
 		end
+
 		puts ("Your hand is: #{player.allCards}" + "   =>    #{handTotal}")
 		puts
 		puts ("Dealer is showing: #{dealer.firstCard}")
