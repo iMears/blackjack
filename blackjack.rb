@@ -43,8 +43,57 @@ class Card
 	def to_s
 		@rank + @suit
 	end
-end
+end #end Card
 
+class Play
+	def deal(deck)
+		if deck.length < 2 
+			return true
+		end
+		@hand = []
+		@hand << deck.pop
+		@hand << deck.pop 
+		return false
+	end #deal
+
+	def isTheDealer(iAmTheDealer)
+		@amDealer = iAmTheDealer 
+	end #isTheDealer
+
+
+	def hit(deck)
+		if deck.length < 1 
+			return true
+		end
+		@hand << deck.pop
+		return false
+	end # hit
+
+	def handValue
+		sum = 0
+		ace_count = 0
+		@hand.each do |x|
+			if x.is_ace? == true
+			   ace_count += 1
+			end
+			sum += x.value
+		end
+		while ace_count > 0 && sum >21
+			sum -= 10
+			ace_count -= 1
+		end
+		return sum
+	end #handValue
+
+	def allCards
+		return @hand.join(", ")
+	end #allCards
+
+	def firstCard
+		return @hand.first
+	end #firstCard
+
+end #Hand
 
 def getYesNo(question)
 	answer = 0
@@ -56,21 +105,6 @@ def getYesNo(question)
 end
 
 
-def get_hand_total(player)
-	sum = 0
-	ace_count = 0
-	player.each do |x|
-		if x.is_ace? == true
-			ace_count += 1
-		end
-		sum += x.value
-	end
-	while ace_count > 0 && sum >21
-		sum -= 10
-		ace_count -= 1
-	end
-	return sum
-end
 
 
 # initialze the dec.  52 cards
@@ -100,17 +134,22 @@ while play == "y"
 	end
 
 	#deal to the player and the dealer
-	player = []
-	player << deck.pop
-	player << deck.pop 
+	player = Play.new
+	player.isTheDealer(false)
+	dealer = Play.new
+	dealer.isTheDealer(true)
 
-	dealer = []
-	dealer << deck.pop
-	dealer << deck.pop
-
+	dealToPlayerFailed = player.deal(deck)
+	if dealToPlayerFailed
+		#refresh deck with more cards
+	end
+	dealToDealerFailed = dealer.deal(deck)
+	if dealToDealerFailed
+		#refresh deck with more cards
+	end
 	
-	handTotal = get_hand_total(player)
-	dealerTotal = get_hand_total(dealer)
+	handTotal = player.handValue
+	dealerTotal = dealer.handValue
 	if dealerTotal == 21
 		puts("DEALER HAS BLACKJACK.. YOU LOSE")
 	elsif handTotal == 21
@@ -120,9 +159,9 @@ while play == "y"
 
 		3.times do puts " "
 		end
-		puts ("Your hand is: #{player.join(", ")}" + "   =>    #{handTotal}")
+		puts ("Your hand is: #{player.allCards}" + "   =>    #{handTotal}")
 		puts
-		puts ("Dealer is showing: #{dealer.first}")
+		puts ("Dealer is showing: #{dealer.firstCard}")
 		3.times do puts " "
 		end
 
@@ -130,27 +169,27 @@ while play == "y"
 		hit = getYesNo("Would you like to hit?")
 		while hit == "y"
 			puts "\n" * 3
-			player << deck.pop
-			handTotal = get_hand_total(player)
+			player.hit(deck)
+			handTotal = player.handValue
 			if handTotal >= 22
 				puts ("		BUSTED!")
 				puts
-				puts ("your had was: #{player.join(", ")}    =>    #{handTotal}")
+				puts ("your hand was: #{player.allCards}    =>    #{handTotal}")
 				break
 			end
-			puts ("Your hand is: #{player.join(", ")}    =>    #{handTotal}")
+			puts ("Your hand is: #{player.allCards}    =>    #{handTotal}")
 			puts
-			puts ("Dealer is showing: #{dealer.first}")
+			puts ("Dealer is showing: #{dealer.firstCard}")
 			puts "\n" * 3
 			hit = getYesNo("Would you like to hit?")
 		end
 
 		if hit == "n" # did not bust
-			while get_hand_total(dealer) < 17
-				dealer << deck.pop
+			while dealer.handValue < 17
+				dealer.hit(deck)
 			end
 
-			dealerTotal = get_hand_total(dealer)
+			dealerTotal = dealer.handValue
 
 			puts "\n" * 3
 
@@ -163,12 +202,12 @@ while play == "y"
 			elsif handTotal < dealerTotal
 				puts("		YOU LOSE")
 			else 
-				puts("		YOU WIN")
+				puts("OOPS ERROR!")
 			end
 			puts
-			puts ("Your hand was: #{player.join(", ")}    =>    #{handTotal}")
+			puts ("Your hand was: #{player.allCards}    =>    #{handTotal}")
 			puts
-			puts ("Dealers hand was: #{dealer.join(", ")}    =>    #{dealerTotal}")
+			puts ("Dealers hand was: #{dealer.firstCard}    =>    #{dealerTotal}")
 		end 
 		puts "\n" * 3
 		play = getYesNo("Would you like to play again?")
