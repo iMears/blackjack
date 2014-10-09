@@ -1,11 +1,12 @@
 class Card
+	# attr_reader :rank, :suit
 
 	SUITS = %w(♠ ♥ ♦ ♣)
 	RANKS = %w(2 3 4 5 6 7 8 9 10 J Q K A)
 
-	def initialize(rank_param, suit_param)
-		@rank = rank_param
-		@suit = suit_param
+	def initialize(rank, suit)
+		@rank = rank
+		@suit = suit
 	end
 
 	def is_ace?
@@ -16,37 +17,35 @@ class Card
 		end
 	end
 
+
+
+
+
+#change to use case statement
+
+
 	def value
-		case @rank
-		when "A"
-			return 11
-		when "K", "Q", "J"
+		if @rank == "K" 
 			return 10
+		elsif @rank == "Q"
+			return 10
+		elsif @rank == "J"
+			return 10
+		elsif @rank == "A"
+			return 11
 		else 
 			return @rank.to_i
 		end
 	end
+
+	
 
 	def to_s
 		@rank + @suit
 	end
 end #end Card
 
-class Deck
-	def initialize
-		@deck = []
-		@discard = []
-
-		Card::SUITS.each do |x| 
-			Card::RANKS.each do |y|
-				@deck << Card.new(y,x)
-			end
-		end
-		@deck.shuffle!
-	end
-end
-
-class Hand
+class Play
 	def deal(deck)
 		if deck.length < 2 
 			return true
@@ -56,6 +55,11 @@ class Hand
 		@hand << deck.pop 
 		return false
 	end #deal
+
+	def isTheDealer(iAmTheDealer)
+		@amDealer = iAmTheDealer 
+	end #isTheDealer
+
 
 	def hit(deck)
 		if deck.length < 1 
@@ -89,18 +93,7 @@ class Hand
 		return @hand.first
 	end #firstCard
 
-	def isSplittable
-		if @iAmTheDealer
-			return false
-		elsif @hand[0] == @hand[1]
-			return true
-		else
-			return false
-		end
-	end #isSplitable
-
 end #Hand
-
 
 def getYesNo(question)
 	answer = 0
@@ -112,17 +105,23 @@ def getYesNo(question)
 end
 
 
-##########   end of definitions   beginning of execution
 
 
 # initialze the dec.  52 cards
+deck = []
+Card::SUITS.each do |x| 
+	Card::RANKS.each do |y|
+		deck << Card.new(y,x)
+	end 
+end
 
 puts "\n" * 3
 play = getYesNo("Play blackjack? ")
-deck = Deck.new
+deck.shuffle!
 
 while play == "y"
 	# do I have enough cards to play one hand
+
 	if deck.length < 10
 		puts ("shuffling...\n" * 25)
 		deck = []
@@ -135,8 +134,10 @@ while play == "y"
 	end
 
 	#deal to the player and the dealer
-	player = Hand.new
-	dealer = Hand.new
+	player = Play.new
+	player.isTheDealer(false)
+	dealer = Play.new
+	dealer.isTheDealer(true)
 
 	dealToPlayerFailed = player.deal(deck)
 	if dealToPlayerFailed
@@ -149,29 +150,15 @@ while play == "y"
 	
 	handTotal = player.handValue
 	dealerTotal = dealer.handValue
-	canSplit = player.isSplittable
-	\
 	if dealerTotal == 21
 		puts("DEALER HAS BLACKJACK.. YOU LOSE")
 	elsif handTotal == 21
 		puts("BLACKJACK YOU WIN")
-	elsif canSplit == true
-		split = getYesNo("would you like to split?")
-		if split == "y"
-			player_hand2 = Hand.new
-			player_hand2.hand << player.hand.pop
-			player.hit(deck)
-			puts ("Hand 1: #{player.allCards}" + " =>    #{player.handValue}")
-			#split = getYesNo("would you like to hit again? y/n")
-			player_hand2.hit(deck)
-			puts ("Hand 2: #{player_hand2.allCards}" + " =>    #{player_hand2.handValue}")
-			#split = getYesNo("would you like to hit again? y/n")
-		end #split
 	else
+
 
 		3.times do puts " "
 		end
-
 		puts ("Your hand is: #{player.allCards}" + "   =>    #{handTotal}")
 		puts
 		puts ("Dealer is showing: #{dealer.firstCard}")
