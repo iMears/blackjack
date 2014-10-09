@@ -12,33 +12,21 @@ class Card
 	def is_ace?
 		if @rank == "A"
 			return true
-		else 
+		else
 			return false
 		end
 	end
 
-
-
-
-
-#change to use case statement
-
-
 	def value
-		if @rank == "K" 
-			return 10
-		elsif @rank == "Q"
-			return 10
-		elsif @rank == "J"
-			return 10
-		elsif @rank == "A"
+		case @rank
+		when "A"
 			return 11
-		else 
+		when "K", "Q", "J"
+			return 10
+		else
 			return @rank.to_i
 		end
 	end
-
-	
 
 	def to_s
 		@rank + @suit
@@ -47,22 +35,22 @@ end #end Card
 
 class Play
 	def deal(deck)
-		if deck.length < 2 
+		if deck.length < 2
 			return true
 		end
 		@hand = []
 		@hand << deck.pop
-		@hand << deck.pop 
+		@hand << deck.pop
 		return false
 	end #deal
 
 	def isTheDealer(iAmTheDealer)
-		@amDealer = iAmTheDealer 
+		@amDealer = iAmTheDealer
 	end #isTheDealer
 
 
 	def hit(deck)
-		if deck.length < 1 
+		if deck.length < 1
 			return true
 		end
 		@hand << deck.pop
@@ -93,7 +81,8 @@ class Play
 		return @hand.first
 	end #firstCard
 
-end #Hand
+end #Play
+
 
 def getYesNo(question)
 	answer = 0
@@ -105,14 +94,15 @@ def getYesNo(question)
 end
 
 
+##########   end of definitions   beginning of execution
 
 
 # initialze the dec.  52 cards
 deck = []
-Card::SUITS.each do |x| 
+Card::SUITS.each do |x|
 	Card::RANKS.each do |y|
 		deck << Card.new(y,x)
-	end 
+	end
 end
 
 puts "\n" * 3
@@ -121,14 +111,13 @@ deck.shuffle!
 
 while play == "y"
 	# do I have enough cards to play one hand
-
 	if deck.length < 10
 		puts ("shuffling...\n" * 25)
 		deck = []
-		Card::SUITS.each do |x| 
+		Card::SUITS.each do |x|
 			Card::RANKS.each do |y|
 				deck << Card.new(y,x)
-			end 
+			end
 		end
 		deck.shuffle!
 	end
@@ -147,7 +136,7 @@ while play == "y"
 	if dealToDealerFailed
 		#refresh deck with more cards
 	end
-	
+
 	handTotal = player.handValue
 	dealerTotal = dealer.handValue
 	if dealerTotal == 21
@@ -156,9 +145,9 @@ while play == "y"
 		puts("BLACKJACK YOU WIN")
 	else
 
-
 		3.times do puts " "
 		end
+
 		puts ("Your hand is: #{player.allCards}" + "   =>    #{handTotal}")
 		puts
 		puts ("Dealer is showing: #{dealer.firstCard}")
@@ -193,7 +182,7 @@ while play == "y"
 
 			puts "\n" * 3
 
-			if dealerTotal > 21 
+			if dealerTotal > 21
 				puts ("		YOU WIN.. DEALER BUSTED!")
 			elsif handTotal == dealerTotal
 				puts("		PUSH!")
@@ -201,14 +190,14 @@ while play == "y"
 				puts("		YOU WIN!")
 			elsif handTotal < dealerTotal
 				puts("		YOU LOSE")
-			else 
+			else
 				puts("OOPS ERROR!")
 			end
 			puts
 			puts ("Your hand was: #{player.allCards}    =>    #{handTotal}")
 			puts
 			puts ("Dealers hand was: #{dealer.firstCard}    =>    #{dealerTotal}")
-		end 
+		end
 		puts "\n" * 3
 		play = getYesNo("Would you like to play again?")
 	end
